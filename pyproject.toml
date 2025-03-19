@@ -1,0 +1,61 @@
+[project]
+name = "pikatool"
+version = "0.0.1"
+description = "A Python package with essential tools for data science."
+authors = [{ name = "Manuel De Luzi", email = "your.email@example.com" }]
+license = "MIT"
+readme = "README.md"
+requires-python = ">=3.8"
+
+dependencies = [
+    "numpy",                   # Numerical computations
+    "pandas",                  # Data manipulation
+    "scipy",                   # Scientific computing
+    "scikit-learn",            # Machine learning
+    "matplotlib",              # Data visualization
+    "seaborn",                 # Statistical data visualization
+    "plotly",                  # Interactive plots
+    "statsmodels",             # Statistical modeling
+    "requests",                # HTTP requests
+    "jupyter",                 # Interactive computing
+    "notebook",                # Jupyter notebook interface
+    "ipywidgets",              # Interactive widgets for notebooks
+    "importlib-metadata; python_version<'3.10'",  # Compatibility for older Python versions
+]
+
+[project.optional-dependencies]
+dev = [
+    "black",                   # Code formatting
+    "flake8",                  # Linting
+    "pytest",                  # Testing framework
+    "mypy",                    # Type checking
+    "pre-commit",              # Pre-commit hooks
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools]
+packages = ["pikatool"]
+
+[tool.black]
+line-length = 79
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

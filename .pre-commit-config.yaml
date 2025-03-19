@@ -1,0 +1,24 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 24.2.0  # Use the latest stable version
+    hooks:
+      - id: black
+
+  - repo: https://github.com/PyCQA/flake8
+    rev: 6.1.0  # Update this as needed
+    hooks:
+      - id: flake8
+        args:
+          - --ignore=E501
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.8.0  # Use a compatible version with your Python setup
+    hooks:
+      - id: mypy
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0  # Pre-commit's official hooks
+    hooks:
+      - id: check-yaml  # Ensure YAML files are valid
+      - id: end-of-file-fixer  # Ensures newline at end of files
+      - id: trailing-whitespace  # Removes trailing spaces
