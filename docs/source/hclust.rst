@@ -1,7 +1,7 @@
 Hierarchical Clustering (Hclust)
 =======================
 
-.. automodule:: clustering.Clustering
+.. automodule:: src.clustering.Clustering
     :members:
     :undoc-members:
     :show-inheritance:

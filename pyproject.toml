@@ -3,7 +3,7 @@ name = "pikatool"
 version = "0.0.1"
 description = "A Python package with essential tools for data science."
 authors = [{ name = "Manuel De Luzi", email = "your.email@example.com" }]
-license = "MIT"
+license = { text = "MIT"}
 readme = "README.md"
 requires-python = ">=3.8"
 
@@ -30,6 +30,7 @@ dev = [
     "pytest",                  # Testing framework
     "mypy",                    # Type checking
     "pre-commit",              # Pre-commit hooks
+    "mypy"
 ]
 
 [build-system]
@@ -37,7 +38,10 @@ requires = ["setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["pikatool"]
+packages = ["src"]
+
+[tool.mypy]
+ignore_missing_imports = true
 
 [tool.black]
 line-length = 79
