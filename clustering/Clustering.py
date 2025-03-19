@@ -1,10 +1,8 @@
 from typing import Protocol
 import numpy as np
-from typing import List, TypeAlias
+from typing import List
 from scipy.spatial.distance import pdist
 from scipy.cluster.hierarchy import linkage, fcluster
-
-Dataset: TypeAlias = np.array
 
 
 class ClustAlgo(Protocol):
@@ -16,7 +14,7 @@ class ClustAlgo(Protocol):
     assigns cluster labels to the data.
     """
 
-    def fit(self, data: Dataset) -> None:
+    def fit(self, data: np.array) -> None:
         """
         Fits the model to the data.
 
@@ -25,7 +23,7 @@ class ClustAlgo(Protocol):
         """
         ...
 
-    def predict(self, data: Dataset) -> List[int]:
+    def predict(self, data: np.array) -> List[int]:
         """
         Predicts the cluster labels for the data.
 
@@ -79,7 +77,7 @@ class Hclust:
         )
         self.linkage_matrix = None  # To store the hierarchical structure
 
-    def fit(self, data: Dataset, dist_metric: str = "euclidean") -> None:
+    def fit(self, data: np.array, dist_metric: str = "euclidean") -> None:
         """
         Computes the hierarchical clustering and stores the linkage matrix.
 
@@ -94,10 +92,10 @@ class Hclust:
         :param dist_metric: The distance metric used to compute pairwise distances between the data points.
             The available options are those supported by `scipy.spatial.distance.pdist`.
             Some common ones include:
-                - **"euclidean"**: Euclidean distance (L2 norm).
-                - **"cityblock"**: Manhattan distance (L1 norm).
-                - **"cosine"**: Cosine distance.
-                - **"hamming"**: Hamming distance, etc.
+            - **"euclidean"**: Euclidean distance (L2 norm).
+            - **"cityblock"**: Manhattan distance (L1 norm).
+            - **"cosine"**: Cosine distance.
+            - **"hamming"**: Hamming distance, etc.
             (default is "euclidean")
         :type dist_metric: str, optional
         :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.
@@ -118,14 +116,14 @@ class Hclust:
         matrix to determine flat clusters based on the selected `criterion`.
 
         :param criterion: The method used to form flat clusters from the hierarchical tree.
-            Based on `scipy.cluster.hierarchy.fcluster`, the available options are:
-                - **"inconsistent"**: Forms clusters based on an inconsistency threshold.
-                - **"distance"**: Ensures that clusters are formed where all points have a
-                  cophenetic distance below a threshold.
-                - **"maxclust"**: Forms a specific number (`self.n_clusters`) of clusters.
-                - **"monocrit"**: Uses a custom monotonic criterion for cluster formation.
-                - **"maxclust_monocrit"**: Ensures no more than `self.n_clusters` clusters are
-                  formed while applying a monotonic criterion.
+        Based on `scipy.cluster.hierarchy.fcluster`, the available options are:
+            - **"inconsistent"**: Forms clusters based on an inconsistency threshold.
+            - **"distance"**: Ensures that clusters are formed where all points have a
+              cophenetic distance below a threshold.
+            - **"maxclust"**: Forms a specific number (`self.n_clusters`) of clusters.
+            - **"monocrit"**: Uses a custom monotonic criterion for cluster formation.
+            - **"maxclust_monocrit"**: Ensures no more than `self.n_clusters` clusters are
+              formed while applying a monotonic criterion.
         :type criterion: str, optional (default is "maxclust")
         :return: A list of cluster labels, where each entry corresponds to a data point in the
             original dataset.
