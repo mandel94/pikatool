@@ -19,12 +19,20 @@ class ClustAlgo(Protocol):
     def fit(self, data: Dataset) -> None:
         """
         Fits the model to the data.
+
+        :param data: The dataset to fit the model on.
+        :type data: Dataset
         """
         ...
 
     def predict(self, data: Dataset) -> List[int]:
         """
         Predicts the cluster labels for the data.
+
+        :param data: The dataset to predict the cluster labels for.
+        :type data: Dataset
+        :return: A list of predicted cluster labels.
+        :rtype: List[int]
         """
         ...
 
@@ -53,12 +61,9 @@ class Hclust:
         """
         Initializes the hierarchical clustering model.
 
-        Parameters:
-        -----------
-        n_clusters : int
-            The number of clusters to form.
-        method : str
-            The linkage method to use for clustering. Valid options include:
+        :param n_clusters: The number of clusters to form.
+        :type n_clusters: int
+        :param method: The linkage method to use for clustering. Valid options include:
             - "ward"
             - "single"
             - "complete"
@@ -66,6 +71,7 @@ class Hclust:
             - "centroid"
             - "median"
             - "weighted"
+        :type method: str
         """
         self.n_clusters = n_clusters
         self.method = (
@@ -81,40 +87,21 @@ class Hclust:
         `scipy.spatial.distance.pdist` and then applies `scipy.cluster.hierarchy.linkage`
         to perform hierarchical clustering.
 
-        Parameters:
-        -----------
-        data : Dataset
-            The input data for hierarchical clustering. It should be an array-like
+        :param data: The input data for hierarchical clustering. It should be an array-like
             structure, such as a 2D NumPy array or a Pandas DataFrame with numeric features.
             The shape should be `(n_samples, n_features)`.
-
-        dist_metric : str, optional (default="euclidean")
-            The distance metric used to compute pairwise distances between the data points.
+        :type data: Dataset
+        :param dist_metric: The distance metric used to compute pairwise distances between the data points.
             The available options are those supported by `scipy.spatial.distance.pdist`.
             Some common ones include:
-
-            - **"euclidean"**: Euclidean distance (L2 norm).
-            - **"cityblock"**: Manhattan distance (L1 norm).
-            - **"cosine"**: Cosine distance.
-            - **"hamming"**: Hamming distance, etc.
-
-            For a complete list of supported distance metrics, refer to the SciPy documentation:
-            https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
-
-        Returns:
-        --------
-        None
-            This method modifies the instance by setting the linkage matrix. No value is returned.
-
-        Raises:
-        -------
-        ValueError
-            If the input data is not a valid array-like structure or has incompatible dimensions.
-
-        References:
-        -----------
-        - `scipy.spatial.distance.pdist`: https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.distance.pdist.html
-        - `scipy.cluster.hierarchy.linkage`: https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.linkage.html
+                - **"euclidean"**: Euclidean distance (L2 norm).
+                - **"cityblock"**: Manhattan distance (L1 norm).
+                - **"cosine"**: Cosine distance.
+                - **"hamming"**: Hamming distance, etc.
+            (default is "euclidean")
+        :type dist_metric: str, optional
+        :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.
+        :return: None
         """
         distance_matrix = pdist(
             data, metric=dist_metric
@@ -130,37 +117,20 @@ class Hclust:
         This method applies the `scipy.cluster.hierarchy.fcluster` function to the linkage
         matrix to determine flat clusters based on the selected `criterion`.
 
-        Parameters:
-        -----------
-        criterion : str, optional (default="maxclust")
-            The method used to form flat clusters from the hierarchical tree. Based on
-            `scipy.cluster.hierarchy.fcluster`, the available options are:
-
-            - **"inconsistent"**: Forms clusters based on an inconsistency threshold.
-            - **"distance"**: Ensures that clusters are formed where all points have a
-              cophenetic distance below a threshold.
-            - **"maxclust"**: Forms a specific number (`self.n_clusters`) of clusters.
-            - **"monocrit"**: Uses a custom monotonic criterion for cluster formation.
-            - **"maxclust_monocrit"**: Ensures no more than `self.n_clusters` clusters are
-              formed while applying a monotonic criterion.
-
-            More details can be found in the SciPy documentation:
-            https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
-
-        Returns:
-        --------
-        List[int]
-            A list of cluster labels, where each entry corresponds to a data point in the
+        :param criterion: The method used to form flat clusters from the hierarchical tree.
+            Based on `scipy.cluster.hierarchy.fcluster`, the available options are:
+                - **"inconsistent"**: Forms clusters based on an inconsistency threshold.
+                - **"distance"**: Ensures that clusters are formed where all points have a
+                  cophenetic distance below a threshold.
+                - **"maxclust"**: Forms a specific number (`self.n_clusters`) of clusters.
+                - **"monocrit"**: Uses a custom monotonic criterion for cluster formation.
+                - **"maxclust_monocrit"**: Ensures no more than `self.n_clusters` clusters are
+                  formed while applying a monotonic criterion.
+        :type criterion: str, optional (default is "maxclust")
+        :return: A list of cluster labels, where each entry corresponds to a data point in the
             original dataset.
-
-        Raises:
-        -------
-        ValueError
-            If the model has not been fitted before calling `predict()`.
-
-        References:
-        -----------
-        - `scipy.cluster.hierarchy.fcluster`: https://docs.scipy.org/doc/scipy/reference/generated/scipy.cluster.hierarchy.fcluster.html
+        :rtype: List[int]
+        :raises ValueError: If the model has not been fitted before calling `predict()`.
         """
         if self.linkage_matrix is None:
             raise ValueError("Model must be fitted before predicting.")
