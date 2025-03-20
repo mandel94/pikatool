@@ -1,9 +1,9 @@
 README.md
 pyproject.toml
 setup.py
+pikatool/__init__.py
 pikatool.egg-info/PKG-INFO
 pikatool.egg-info/SOURCES.txt
 pikatool.egg-info/dependency_links.txt
 pikatool.egg-info/requires.txt
 pikatool.egg-info/top_level.txt
-src/__init__.py

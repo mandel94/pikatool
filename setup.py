@@ -13,7 +13,7 @@ setup(
     long_description_content_type="text/markdown",  # Ensure the correct content type for the README file
     url="https://github.com/yourusername/pikatool",  # Replace with your project's actual URL
     packages=find_packages(
-        where="src"
+        where="pikatool"
     ),  # Automatically discover packages in the src folder
     python_requires=">=3.12",  # Same as in your pyproject.toml
     install_requires=[  # Same as in your pyproject.toml
