@@ -1,8 +1,9 @@
 from typing import Protocol
 import numpy as np
 from typing import List
-from scipy.spatial.distance import pdist
-from scipy.cluster.hierarchy import linkage, fcluster
+from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.metrics import pairwise_distances
+import pandas as pd
 
 
 class ClustAlgo(Protocol):
@@ -23,119 +24,185 @@ class ClustAlgo(Protocol):
         """
         ...
 
-    def predict(self, data: np.array) -> List[int]:
+    def predict(self) -> List[int]:
         """
         Predicts the cluster labels for the data.
 
-        :param data: The dataset to predict the cluster labels for.
-        :type data: Dataset
         :return: A list of predicted cluster labels.
         :rtype: List[int]
         """
         ...
 
 
-class Hclust:
+class KMeansClust:
     """
-    A class that implements hierarchical clustering using scipy's linkage function.
+    A class that implements KMeans clustering using scikit-learn's KMeans algorithm.
 
-    This class provides functionality to perform hierarchical clustering and assign cluster labels
-    using a variety of criteria such as `maxclust`, `inconsistent`, etc. The `fit` method computes the
-    hierarchical clustering and stores the linkage matrix. The `predict` method uses the linkage matrix
-    to form flat clusters.
+    This class provides functionality to perform KMeans clustering and assign cluster labels.
+    The `fit` method computes the clustering model, and the `predict` method assigns cluster labels
+    to the data points.
 
     Attributes:
     -----------
     n_clusters : int
-        The number of clusters to form. This is used in the `predict` method to determine how many clusters
-        should be formed from the hierarchical tree.
-    method : str
-        The linkage method used for clustering (e.g., 'ward', 'single', 'complete').
-    linkage_matrix : np.ndarray or None
-        A linkage matrix that encodes the hierarchical clustering. It is computed by the `fit` method.
+        The number of clusters to form.
+    kmeans_model : KMeans
+        The KMeans model fitted on the data. It stores the cluster centers and the labels for each data point.
+    distance_metric : str
+        The distance metric to use for clustering. By default, it is "euclidean".
     """
 
-    def __init__(self, n_clusters: int, method: str):
+    def __init__(self, n_clusters: int, distance_metric: str = "euclidean"):
         """
-        Initializes the hierarchical clustering model.
+        Initializes the KMeans clustering model.
 
         :param n_clusters: The number of clusters to form.
         :type n_clusters: int
-        :param method: The linkage method to use for clustering. Valid options include:
-            - "ward"
-            - "single"
-            - "complete"
-            - "average"
-            - "centroid"
-            - "median"
-            - "weighted"
-        :type method: str
+        :param distance_metric: The distance metric to use for clustering. Default is "euclidean".
+        :type distance_metric: str
         """
         self.n_clusters = n_clusters
-        self.method = (
-            method  # Linkage method (e.g., 'ward', 'single', 'complete')
+        self.distance_metric = (
+            distance_metric  # Distance metric (e.g., 'euclidean', 'jaccard')
         )
-        self.linkage_matrix = None  # To store the hierarchical structure
 
-    def fit(self, data: np.array, dist_metric: str = "euclidean") -> None:
+    def fit(self, data: np.array) -> None:
         """
-        Computes the hierarchical clustering and stores the linkage matrix.
+        Computes the KMeans clustering model.
 
-        This method computes the pairwise distances between data points using
-        `scipy.spatial.distance.pdist` and then applies `scipy.cluster.hierarchy.linkage`
-        to perform hierarchical clustering.
+        This method uses `KMeans` from scikit-learn to fit the clustering model on the data.
 
-        :param data: The input data for hierarchical clustering. It should be an array-like
-            structure, such as a 2D NumPy array or a Pandas DataFrame with numeric features.
+        :param data: The input data for clustering. It should be an array-like structure,
+            such as a 2D NumPy array or a Pandas DataFrame with numeric features.
             The shape should be `(n_samples, n_features)`.
-        :type data: Dataset
-        :param dist_metric: The distance metric used to compute pairwise distances between the data points.
-            The available options are those supported by `scipy.spatial.distance.pdist`.
-            Some common ones include:
-            - **"euclidean"**: Euclidean distance (L2 norm).
-            - **"cityblock"**: Manhattan distance (L1 norm).
-            - **"cosine"**: Cosine distance.
-            - **"hamming"**: Hamming distance, etc.
-            (default is "euclidean")
-        :type dist_metric: str, optional
+        :type data: np.ndarray
         :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.
         :return: None
         """
-        distance_matrix = pdist(
-            data, metric=dist_metric
-        )  # Compute pairwise distances
-        self.linkage_matrix = linkage(
-            distance_matrix, method=self.method
-        )  # Compute the linkage matrix
+        if self.distance_metric == "jaccard":
+            # For KMeans, Jaccard distance is not supported directly, so we need to compute pairwise distances.
+            distance_matrix = pairwise_distances(data, metric="jaccard")
+            # Apply clustering on the distance matrix (this approach may not be optimal with KMeans)
+            # Convert the distance matrix into a form KMeans can work with
+            # (this is a basic workaround and may not provide meaningful results with KMeans)
+            data = (
+                1 - distance_matrix
+            )  # Convert Jaccard distance to similarity
+            self.data = data
+        self.kmeans_model = KMeans(n_clusters=self.n_clusters)
+        self.kmeans_model.fit(data)
 
-    def predict(self, criterion: str = "maxclust") -> List[int]:
+    def predict(self) -> List[int]:
         """
-        Assigns cluster labels based on the computed hierarchical structure.
+        Predicts the cluster labels for the data.
 
-        This method applies the `scipy.cluster.hierarchy.fcluster` function to the linkage
-        matrix to determine flat clusters based on the selected `criterion`.
+        This method assigns cluster labels based on the fitted KMeans model.
 
-        :param criterion: The method used to form flat clusters from the hierarchical tree.
-        Based on `scipy.cluster.hierarchy.fcluster`, the available options are:
-            - **"inconsistent"**: Forms clusters based on an inconsistency threshold.
-            - **"distance"**: Ensures that clusters are formed where all points have a
-              cophenetic distance below a threshold.
-            - **"maxclust"**: Forms a specific number (`self.n_clusters`) of clusters.
-            - **"monocrit"**: Uses a custom monotonic criterion for cluster formation.
-            - **"maxclust_monocrit"**: Ensures no more than `self.n_clusters` clusters are
-              formed while applying a monotonic criterion.
-        :type criterion: str, optional (default is "maxclust")
-        :return: A list of cluster labels, where each entry corresponds to a data point in the
-            original dataset.
+        :return: A list of predicted cluster labels, where each entry corresponds to a data point.
         :rtype: List[int]
         :raises ValueError: If the model has not been fitted before calling `predict()`.
         """
-        if self.linkage_matrix is None:
+        if self.kmeans_model is None:
             raise ValueError("Model must be fitted before predicting.")
+        cluster_labels = self.kmeans_model.predict(self.data)
+        return (
+            cluster_labels.tolist()
+        )  # Convert NumPy array to a list of integers
 
-        cluster_labels = fcluster(
-            self.linkage_matrix, self.n_clusters, criterion=criterion
+
+class AggloClust:
+    """
+    A class that implements agglomerative (hierarchical) clustering using scikit-learn's AgglomerativeClustering algorithm.
+
+    This class provides functionality to perform agglomerative clustering and assign cluster labels.
+    The `fit` method computes the clustering model, and the `predict` method assigns cluster labels
+    to the data points.
+
+    Attributes:
+    -----------
+    n_clusters : int
+        The number of clusters to form.
+    linkage : str
+        The linkage criterion to use for clustering (options: 'ward', 'complete', 'average', 'single').
+    agglomerative_model : AgglomerativeClustering
+        The AgglomerativeClustering model fitted on the data. It stores the cluster labels for each data point.
+    distance_metric : str
+        The distance metric to use for clustering. Default is 'euclidean', but can be changed to 'jaccard'.
+    """
+
+    def __init__(
+        self,
+        n_clusters: int,
+        linkage: str = "ward",
+        distance_metric: str = "euclidean",
+    ):
+        """
+        Initializes the agglomerative clustering model.
+
+        :param n_clusters: The number of clusters to form.
+        :type n_clusters: int
+        :param linkage: The linkage criterion to use. Valid options are:
+            - "ward"
+            - "complete"
+            - "average"
+            - "single"
+        :type linkage: str
+        :param distance_metric: The distance metric to use for clustering (default is "euclidean").
+        :type distance_metric: str
+        """
+        self.n_clusters = n_clusters
+        self.linkage = linkage
+        self.distance_metric = (
+            distance_metric  # Distance metric (e.g., 'euclidean', 'jaccard')
         )
+
+    def fit(self, data: np.array) -> None:
+        """
+        Computes the agglomerative clustering model.
+
+        This method uses `AgglomerativeClustering` from scikit-learn to fit the clustering model on the data.
+
+        :param data: The input data for clustering. It should be an array-like structure,
+            such as a 2D NumPy array or a Pandas DataFrame with numeric features.
+            The shape should be `(n_samples, n_features)`.
+        :type data: np.ndarray
+        :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.
+        :return: None
+        """
+
+        if isinstance(data, pd.DataFrame):
+            data = data.values  # Convert DataFrame to NumPy array
+
+        if self.distance_metric == "jaccard":
+            # Compute pairwise Jaccard distances and pass it to AgglomerativeClustering
+            distance_matrix = pairwise_distances(data, metric="jaccard")
+            self.agglomerative_model = AgglomerativeClustering(
+                n_clusters=self.n_clusters,
+                metric="precomputed",
+                linkage=self.linkage,
+            )
+            self.agglomerative_model.fit(distance_matrix)
+        else:
+            self.agglomerative_model = AgglomerativeClustering(
+                n_clusters=self.n_clusters,
+                metric=self.distance_metric,
+                linkage=self.linkage,
+            )
+            self.agglomerative_model.fit(data)
+
+    def predict(self) -> List[int]:
+        """
+        Predicts the cluster labels for the data.
+
+        This method assigns cluster labels based on the fitted AgglomerativeClustering model.
+
+        :return: A list of predicted cluster labels, where each entry corresponds to a data point.
+        :rtype: List[int]
+        :raises ValueError: If the model has not been fitted before calling `predict()`.
+        """
+        if self.agglomerative_model is None:
+            raise ValueError("Model must be fitted before predicting.")
+        cluster_labels = self.agglomerative_model.labels_
         return (
             cluster_labels.tolist()
         )  # Convert NumPy array to a list of integers
