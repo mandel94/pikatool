@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 
-class Dendrogramma:
+class Dendrogram:
     def __init__(
         self,
         data: pd.DataFrame,
