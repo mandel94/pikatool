@@ -1,9 +1,10 @@
 from typing import Protocol
 import numpy as np
 from typing import List
-from sklearn.cluster import KMeans, AgglomerativeClustering
+from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import pairwise_distances
 import pandas as pd
+from .Dendrogram import Dendrogram
 
 
 class ClustAlgo(Protocol):
@@ -34,80 +35,81 @@ class ClustAlgo(Protocol):
         ...
 
 
-class KMeansClust:
-    """
-    A class that implements KMeans clustering using scikit-learn's KMeans algorithm.
+# class KMeansClust: TODO NOT TESTED IN REAL USE-CASE YET
+#     """
+#     A class that implements KMeans clustering using scikit-learn's KMeans algorithm.
 
-    This class provides functionality to perform KMeans clustering and assign cluster labels.
-    The `fit` method computes the clustering model, and the `predict` method assigns cluster labels
-    to the data points.
+#     This class provides functionality to perform KMeans clustering and assign cluster labels.
+#     The `fit` method computes the clustering model, and the `predict` method assigns cluster labels
+#     to the data points.
 
-    Attributes:
-    -----------
-    n_clusters : int
-        The number of clusters to form.
-    kmeans_model : KMeans
-        The KMeans model fitted on the data. It stores the cluster centers and the labels for each data point.
-    distance_metric : str
-        The distance metric to use for clustering. By default, it is "euclidean".
-    """
+#     Attributes:
+#     -----------
+#     n_clusters : int
+#         The number of clusters to form.
+#     kmeans_model : KMeans
+#         The KMeans model fitted on the data. It stores the cluster centers and the labels for each data point.
+#     distance_metric : str
+#         The distance metric to use for clustering. By default, it is "euclidean".
+#     """
 
-    def __init__(self, n_clusters: int, distance_metric: str = "euclidean"):
-        """
-        Initializes the KMeans clustering model.
+#     def __init__(self, n_clusters: int, distance_metric: str = "euclidean"):
+#         """
+#         Initializes the KMeans clustering model.
 
-        :param n_clusters: The number of clusters to form.
-        :type n_clusters: int
-        :param distance_metric: The distance metric to use for clustering. Default is "euclidean".
-        :type distance_metric: str
-        """
-        self.n_clusters = n_clusters
-        self.distance_metric = (
-            distance_metric  # Distance metric (e.g., 'euclidean', 'jaccard')
-        )
+#         :param n_clusters: The number of clusters to form.
+#         :type n_clusters: int
+#         :param distance_metric: The distance metric to use for clustering. Default is "euclidean".
+#         :type distance_metric: str
+#         """
+#         self.n_clusters = n_clusters
+#         self.distance_metric = (
+#             distance_metric  # Distance metric (e.g., 'euclidean', 'jaccard')
+#         )
 
-    def fit(self, data: np.array) -> None:
-        """
-        Computes the KMeans clustering model.
+#     def fit(self, data: np.array) -> None:
+#         """
+#         Computes the KMeans clustering model.
 
-        This method uses `KMeans` from scikit-learn to fit the clustering model on the data.
+#         This method uses `KMeans` from scikit-learn to fit the clustering model on the data.
 
-        :param data: The input data for clustering. It should be an array-like structure,
-            such as a 2D NumPy array or a Pandas DataFrame with numeric features.
-            The shape should be `(n_samples, n_features)`.
-        :type data: np.ndarray
-        :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.
-        :return: None
-        """
-        if self.distance_metric == "jaccard":
-            # For KMeans, Jaccard distance is not supported directly, so we need to compute pairwise distances.
-            distance_matrix = pairwise_distances(data, metric="jaccard")
-            # Apply clustering on the distance matrix (this approach may not be optimal with KMeans)
-            # Convert the distance matrix into a form KMeans can work with
-            # (this is a basic workaround and may not provide meaningful results with KMeans)
-            data = (
-                1 - distance_matrix
-            )  # Convert Jaccard distance to similarity
-            self.data = data
-        self.kmeans_model = KMeans(n_clusters=self.n_clusters)
-        self.kmeans_model.fit(data)
+#         :param data: The input data for clustering. It should be an array-like structure,
+#             such as a 2D NumPy array or a Pandas DataFrame with numeric features.
+#             The shape should be `(n_samples, n_features)`.
+#         :type data: np.ndarray
+#         :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.
+#         :return: None
+#         """
+#         if self.distance_metric == "jaccard":
+#             # For KMeans, Jaccard distance is not supported directly, so we need to compute pairwise distances.
+#             distance_matrix = pairwise_distances(data, metric="jaccard")
+#             # Apply clustering on the distance matrix (this approach may not be optimal with KMeans)
+#             # Convert the distance matrix into a form KMeans can work with
+#             # (this is a basic workaround and may not provide meaningful results with KMeans)
+#             data = (
+#                 1 - distance_matrix
+#             )  # Convert Jaccard distance to similarity
+#             self.data = data
+#         self.data = data
+#         self.kmeans_model = KMeans(n_clusters=self.n_clusters)
+#         self.kmeans_model.fit(data)
 
-    def predict(self) -> List[int]:
-        """
-        Predicts the cluster labels for the data.
+#     def predict(self) -> List[int]:
+#         """
+#         Predicts the cluster labels for the data.
 
-        This method assigns cluster labels based on the fitted KMeans model.
+#         This method assigns cluster labels based on the fitted KMeans model.
 
-        :return: A list of predicted cluster labels, where each entry corresponds to a data point.
-        :rtype: List[int]
-        :raises ValueError: If the model has not been fitted before calling `predict()`.
-        """
-        if self.kmeans_model is None:
-            raise ValueError("Model must be fitted before predicting.")
-        cluster_labels = self.kmeans_model.predict(self.data)
-        return (
-            cluster_labels.tolist()
-        )  # Convert NumPy array to a list of integers
+#         :return: A list of predicted cluster labels, where each entry corresponds to a data point.
+#         :rtype: List[int]
+#         :raises ValueError: If the model has not been fitted before calling `predict()`.
+#         """
+#         if self.kmeans_model is None:
+#             raise ValueError("Model must be fitted before predicting.")
+#         cluster_labels = self.kmeans_model.predict(self.data)
+#         return (
+#             cluster_labels.tolist()
+#         )  # Convert NumPy array to a list of integers
 
 
 class AggloClust:
@@ -171,11 +173,11 @@ class AggloClust:
         """
 
         if isinstance(data, pd.DataFrame):
-            data = data.values  # Convert DataFrame to NumPy array
+            np_data = data.values  # Convert DataFrame to NumPy array
 
         if self.distance_metric == "jaccard":
             # Compute pairwise Jaccard distances and pass it to AgglomerativeClustering
-            distance_matrix = pairwise_distances(data, metric="jaccard")
+            distance_matrix = pairwise_distances(np_data, metric="jaccard")
             self.agglomerative_model = AgglomerativeClustering(
                 n_clusters=self.n_clusters,
                 metric="precomputed",
@@ -188,7 +190,8 @@ class AggloClust:
                 metric=self.distance_metric,
                 linkage=self.linkage,
             )
-            self.agglomerative_model.fit(data)
+            self.agglomerative_model.fit(np_data)
+        self.data = data
 
     def predict(self) -> List[int]:
         """
@@ -206,3 +209,23 @@ class AggloClust:
         return (
             cluster_labels.tolist()
         )  # Convert NumPy array to a list of integers
+
+    def get_dendrogram(self) -> Dendrogram:
+        """
+        Returns a Dendrogram object.
+
+        This method returns a Dendrogram object based on input provided at
+        object initialization.
+
+        :return: A Dendrogram object
+        :rtype: Dendrogram
+        :raises ValueError: If the model has not been fitted before calling `predict()`.
+        """
+        # TODO Check if self.data is present, else model needs to be fitted first (
+        # without fitting there's no dendrogram)
+        dendrogram = Dendrogram(
+            self.data,
+            distance_metric=self.distance_metric,
+            linkage=self.linkage,
+        )
+        return dendrogram

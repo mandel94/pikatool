@@ -1,4 +1,5 @@
-from .Clustering import KMeansClust, AggloClust
+from .Clustering import AggloClust
+from .Dendrogram import Dendrogram, DendrogramConfig
 
 
-__all__ = ["KMeansClust", "AggloClust"]
+__all__ = ["AggloClust", "Dendrogram", "DendrogramConfig"]
