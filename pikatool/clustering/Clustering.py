@@ -21,7 +21,7 @@ class ClustAlgo(Protocol):
         Fits the model to the data.
 
         :param data: The dataset to fit the model on.
-        :type data: Dataset
+        :type data: np.array
         """
         ...
 
