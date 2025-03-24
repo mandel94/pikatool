@@ -4,7 +4,7 @@ from typing import List
 from sklearn.cluster import AgglomerativeClustering
 from sklearn.metrics import pairwise_distances
 import pandas as pd
-from .Dendrogram import Dendrogram
+from .dendrogram import Dendrogram
 
 
 class ClustAlgo(Protocol):
