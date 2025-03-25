@@ -1,5 +1,5 @@
 from .clustering import AggloClust
-from .dendrogram import Dendrogram, DendrogramConfig
+from .dendrogram import Dendrogram
 
 
-__all__ = ["AggloClust", "Dendrogram", "DendrogramConfig"]
+__all__ = ["AggloClust", "Dendrogram"]

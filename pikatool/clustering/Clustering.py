@@ -193,20 +193,20 @@ class AggloClust:
             self.agglomerative_model.fit(np_data)
         self.data = data
 
-    def predict(self) -> List[int]:
+    def predict(self) -> pd.Series:
         """
         Predicts the cluster labels for the data.
 
         This method assigns cluster labels based on the fitted AgglomerativeClustering model.
 
         :return: A list of predicted cluster labels, where each entry corresponds to a data point.
-        :rtype: List[int]
+        :rtype: pd.Series
         :raises ValueError: If the model has not been fitted before calling `predict()`.
         """
         if self.agglomerative_model is None:
             raise ValueError("Model must be fitted before predicting.")
         cluster_labels = self.agglomerative_model.labels_
-        return (
+        return pd.Series(
             cluster_labels.tolist()
         )  # Convert NumPy array to a list of integers
 
