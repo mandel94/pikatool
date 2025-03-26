@@ -1,5 +1,6 @@
 import numpy as np
-from numpy.typing import ArrayLike, Optional
+from numpy.typing import ArrayLike
+from typing import Optional
 import statsmodels.api as sm
 import pandas as pd
 from .plot_utils import ConfidenceIntervalPlotter

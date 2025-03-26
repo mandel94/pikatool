@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 from sklearn.metrics import DistanceMetric
 import scipy.cluster.hierarchy as sch
 from scipy.spatial.distance import squareform
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+from pandas.api.types import is_string_dtype
 
 
 class Dendrogram:
@@ -29,8 +30,10 @@ class Dendrogram:
         self.linkage = linkage
         self.dist_matrix = None
         self.linkage_matrix = None
-        self.labels = data.index.str.replace(" ", "")
-
+        if is_string_dtype(data.index):
+            self.labels = data.index.str.replace(" ", "")
+        else:
+            self.labels = data.index
         self._compute_distance_matrix()
         self._compute_linkage_matrix()
 
@@ -59,7 +62,7 @@ class Dendrogram:
             method=self.linkage,  # squareform ensures condensed distance matrix (statsmodels likes it)
         )
 
-    def plot(self, config: Dict[str, Any]):
+    def plot(self, config: Optional[Dict[str, Any]] = None):
         """
         Generates and displays the dendrogram using the provided configuration.
 
@@ -86,6 +89,7 @@ class Dendrogram:
         }
 
         # Merge provided config with defaults, overwriting default values with user input
+        config = {} if not config else config
         config = {**default_config, **config}
 
         fig, ax = plt.subplots(figsize=config["figsize"])

@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from typing import Tuple, Dict, Optional, Any
+from typing import Tuple, Dict, Optional, Any, Union
 
 
 class ConfidenceIntervalPlotter:
@@ -38,7 +38,7 @@ class ConfidenceIntervalPlotter:
         self.upper_bounds: np.ndarray = conf_intervals_df.iloc[:, 1].to_numpy()
 
         # Default theme settings
-        self.theme = {
+        self.theme: Dict[str, Union[Any, Dict[str, Any]]] = {
             "figsize": (12, 6),
             "marker_color": "#008150",
             "zero_line_color": "#E3001D",
@@ -192,7 +192,7 @@ class ConfidenceIntervalPlotter:
 
         # Remove specified spines
 
-        for spine, visible in self.theme["spine_visibility"].__dict__.items():
+        for spine, visible in self.theme["spine_visibility"].items():
             plt.gca().spines[spine].set_visible(visible)
 
         # Add horizontal grid lines
