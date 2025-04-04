@@ -1,0 +1,7 @@
+Hierarchical Clustering
+=======================
+
+.. automodule:: pikatool.clustering
+   :members:
+   :undoc-members:
+   :show-inheritance:

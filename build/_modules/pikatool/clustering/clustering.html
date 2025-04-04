@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pikatool.clustering.clustering &#8212; Pikatool 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+
+
+
+
+
+  </head><body>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+
+
+          <div class="body" role="main">
+
+  <h1>Source code for pikatool.clustering.clustering</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Protocol</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">AgglomerativeClustering</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairwise_distances</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.dendrogram</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dendrogram</span>
+
+
+<div class="viewcode-block" id="ClustAlgo">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.ClustAlgo">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClustAlgo</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A protocol that defines the interface for clustering algorithms.</span>
+
+<span class="sd">    This protocol outlines the methods `fit` and `predict`, which all clustering algorithms</span>
+<span class="sd">    should implement. The `fit` method computes the clustering model, and the `predict` method</span>
+<span class="sd">    assigns cluster labels to the data.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ClustAlgo.fit">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.ClustAlgo.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fits the model to the data.</span>
+
+<span class="sd">        :param data: The dataset to fit the model on.</span>
+<span class="sd">        :type data: np.array</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+
+
+<div class="viewcode-block" id="ClustAlgo.predict">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.ClustAlgo.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts the cluster labels for the data.</span>
+
+<span class="sd">        :return: A list of predicted cluster labels.</span>
+<span class="sd">        :rtype: List[int]</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="o">...</span></div>
+</div>
+
+
+
+<span class="c1"># class KMeansClust: TODO NOT TESTED IN REAL USE-CASE YET</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+<span class="c1">#     A class that implements KMeans clustering using scikit-learn&#39;s KMeans algorithm.</span>
+
+<span class="c1">#     This class provides functionality to perform KMeans clustering and assign cluster labels.</span>
+<span class="c1">#     The `fit` method computes the clustering model, and the `predict` method assigns cluster labels</span>
+<span class="c1">#     to the data points.</span>
+
+<span class="c1">#     Attributes:</span>
+<span class="c1">#     -----------</span>
+<span class="c1">#     n_clusters : int</span>
+<span class="c1">#         The number of clusters to form.</span>
+<span class="c1">#     kmeans_model : KMeans</span>
+<span class="c1">#         The KMeans model fitted on the data. It stores the cluster centers and the labels for each data point.</span>
+<span class="c1">#     distance_metric : str</span>
+<span class="c1">#         The distance metric to use for clustering. By default, it is &quot;euclidean&quot;.</span>
+<span class="c1">#     &quot;&quot;&quot;</span>
+
+<span class="c1">#     def __init__(self, n_clusters: int, distance_metric: str = &quot;euclidean&quot;):</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         Initializes the KMeans clustering model.</span>
+
+<span class="c1">#         :param n_clusters: The number of clusters to form.</span>
+<span class="c1">#         :type n_clusters: int</span>
+<span class="c1">#         :param distance_metric: The distance metric to use for clustering. Default is &quot;euclidean&quot;.</span>
+<span class="c1">#         :type distance_metric: str</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         self.n_clusters = n_clusters</span>
+<span class="c1">#         self.distance_metric = (</span>
+<span class="c1">#             distance_metric  # Distance metric (e.g., &#39;euclidean&#39;, &#39;jaccard&#39;)</span>
+<span class="c1">#         )</span>
+
+<span class="c1">#     def fit(self, data: np.array) -&gt; None:</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         Computes the KMeans clustering model.</span>
+
+<span class="c1">#         This method uses `KMeans` from scikit-learn to fit the clustering model on the data.</span>
+
+<span class="c1">#         :param data: The input data for clustering. It should be an array-like structure,</span>
+<span class="c1">#             such as a 2D NumPy array or a Pandas DataFrame with numeric features.</span>
+<span class="c1">#             The shape should be `(n_samples, n_features)`.</span>
+<span class="c1">#         :type data: np.ndarray</span>
+<span class="c1">#         :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.</span>
+<span class="c1">#         :return: None</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         if self.distance_metric == &quot;jaccard&quot;:</span>
+<span class="c1">#             # For KMeans, Jaccard distance is not supported directly, so we need to compute pairwise distances.</span>
+<span class="c1">#             distance_matrix = pairwise_distances(data, metric=&quot;jaccard&quot;)</span>
+<span class="c1">#             # Apply clustering on the distance matrix (this approach may not be optimal with KMeans)</span>
+<span class="c1">#             # Convert the distance matrix into a form KMeans can work with</span>
+<span class="c1">#             # (this is a basic workaround and may not provide meaningful results with KMeans)</span>
+<span class="c1">#             data = (</span>
+<span class="c1">#                 1 - distance_matrix</span>
+<span class="c1">#             )  # Convert Jaccard distance to similarity</span>
+<span class="c1">#             self.data = data</span>
+<span class="c1">#         self.data = data</span>
+<span class="c1">#         self.kmeans_model = KMeans(n_clusters=self.n_clusters)</span>
+<span class="c1">#         self.kmeans_model.fit(data)</span>
+
+<span class="c1">#     def predict(self) -&gt; List[int]:</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         Predicts the cluster labels for the data.</span>
+
+<span class="c1">#         This method assigns cluster labels based on the fitted KMeans model.</span>
+
+<span class="c1">#         :return: A list of predicted cluster labels, where each entry corresponds to a data point.</span>
+<span class="c1">#         :rtype: List[int]</span>
+<span class="c1">#         :raises ValueError: If the model has not been fitted before calling `predict()`.</span>
+<span class="c1">#         &quot;&quot;&quot;</span>
+<span class="c1">#         if self.kmeans_model is None:</span>
+<span class="c1">#             raise ValueError(&quot;Model must be fitted before predicting.&quot;)</span>
+<span class="c1">#         cluster_labels = self.kmeans_model.predict(self.data)</span>
+<span class="c1">#         return (</span>
+<span class="c1">#             cluster_labels.tolist()</span>
+<span class="c1">#         )  # Convert NumPy array to a list of integers</span>
+
+
+<div class="viewcode-block" id="AggloClust">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.AggloClust">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AggloClust</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class that implements agglomerative (hierarchical) clustering using scikit-learn&#39;s AgglomerativeClustering algorithm.</span>
+
+<span class="sd">    This class provides functionality to perform agglomerative clustering and assign cluster labels.</span>
+<span class="sd">    The `fit` method computes the clustering model, and the `predict` method assigns cluster labels</span>
+<span class="sd">    to the data points.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">    -----------</span>
+<span class="sd">    n_clusters : int</span>
+<span class="sd">        The number of clusters to form.</span>
+<span class="sd">    linkage : str</span>
+<span class="sd">        The linkage criterion to use for clustering (options: &#39;ward&#39;, &#39;complete&#39;, &#39;average&#39;, &#39;single&#39;).</span>
+<span class="sd">    agglomerative_model : AgglomerativeClustering</span>
+<span class="sd">        The AgglomerativeClustering model fitted on the data. It stores the cluster labels for each data point.</span>
+<span class="sd">    distance_metric : str</span>
+<span class="sd">        The distance metric to use for clustering. Default is &#39;euclidean&#39;, but can be changed to &#39;jaccard&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">n_clusters</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+        <span class="n">linkage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ward&quot;</span><span class="p">,</span>
+        <span class="n">distance_metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the agglomerative clustering model.</span>
+
+<span class="sd">        :param n_clusters: The number of clusters to form.</span>
+<span class="sd">        :type n_clusters: int</span>
+<span class="sd">        :param linkage: The linkage criterion to use. Valid options are:</span>
+<span class="sd">            - &quot;ward&quot;</span>
+<span class="sd">            - &quot;complete&quot;</span>
+<span class="sd">            - &quot;average&quot;</span>
+<span class="sd">            - &quot;single&quot;</span>
+<span class="sd">        :type linkage: str</span>
+<span class="sd">        :param distance_metric: The distance metric to use for clustering (default is &quot;euclidean&quot;).</span>
+<span class="sd">        :type distance_metric: str</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span> <span class="o">=</span> <span class="n">n_clusters</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkage</span> <span class="o">=</span> <span class="n">linkage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_metric</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">distance_metric</span>  <span class="c1"># Distance metric (e.g., &#39;euclidean&#39;, &#39;jaccard&#39;)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="AggloClust.fit">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.AggloClust.fit">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the agglomerative clustering model.</span>
+
+<span class="sd">        This method uses `AgglomerativeClustering` from scikit-learn to fit the clustering model on the data.</span>
+
+<span class="sd">        :param data: The input data for clustering. It should be an array-like structure,</span>
+<span class="sd">            such as a 2D NumPy array or a Pandas DataFrame with numeric features.</span>
+<span class="sd">            The shape should be `(n_samples, n_features)`.</span>
+<span class="sd">        :type data: np.ndarray</span>
+<span class="sd">        :raises ValueError: If the input data is not a valid array-like structure or has incompatible dimensions.</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="n">np_data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">values</span>  <span class="c1"># Convert DataFrame to NumPy array</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance_metric</span> <span class="o">==</span> <span class="s2">&quot;jaccard&quot;</span><span class="p">:</span>
+            <span class="c1"># Compute pairwise Jaccard distances and pass it to AgglomerativeClustering</span>
+            <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">pairwise_distances</span><span class="p">(</span><span class="n">np_data</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;jaccard&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agglomerative_model</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span>
+                <span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span><span class="p">,</span>
+                <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span>
+                <span class="n">linkage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agglomerative_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agglomerative_model</span> <span class="o">=</span> <span class="n">AgglomerativeClustering</span><span class="p">(</span>
+                <span class="n">n_clusters</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">n_clusters</span><span class="p">,</span>
+                <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_metric</span><span class="p">,</span>
+                <span class="n">linkage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">agglomerative_model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">np_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span></div>
+
+
+<div class="viewcode-block" id="AggloClust.predict">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.AggloClust.predict">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Predicts the cluster labels for the data.</span>
+
+<span class="sd">        This method assigns cluster labels based on the fitted AgglomerativeClustering model.</span>
+
+<span class="sd">        :return: A list of predicted cluster labels, where each entry corresponds to a data point.</span>
+<span class="sd">        :rtype: pd.Series</span>
+<span class="sd">        :raises ValueError: If the model has not been fitted before calling `predict()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">agglomerative_model</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Model must be fitted before predicting.&quot;</span><span class="p">)</span>
+        <span class="n">cluster_labels</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">agglomerative_model</span><span class="o">.</span><span class="n">labels_</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span>
+            <span class="n">cluster_labels</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="p">)</span>  <span class="c1"># Convert NumPy array to a list of integers</span></div>
+
+
+<div class="viewcode-block" id="AggloClust.get_dendrogram">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.clustering.AggloClust.get_dendrogram">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_dendrogram</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dendrogram</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Returns a Dendrogram object.</span>
+
+<span class="sd">        This method returns a Dendrogram object based on input provided at</span>
+<span class="sd">        object initialization.</span>
+
+<span class="sd">        :return: A Dendrogram object</span>
+<span class="sd">        :rtype: Dendrogram</span>
+<span class="sd">        :raises ValueError: If the model has not been fitted before calling `predict()`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO Check if self.data is present, else model needs to be fitted first (</span>
+        <span class="c1"># without fitting there&#39;s no dendrogram)</span>
+        <span class="n">dendrogram</span> <span class="o">=</span> <span class="n">Dendrogram</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">,</span>
+            <span class="n">distance_metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_metric</span><span class="p">,</span>
+            <span class="n">linkage</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">dendrogram</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Pikatool</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hierarchical_clustering.html">Hierarchical Clustering</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Manuel De Luzi.
+
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+
+    </div>
+
+
+
+
+  </body>
+</html>

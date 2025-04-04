@@ -1,0 +1,76 @@
+Pikatool: A Personal Framework for Streamlined Data Science
+============================================================
+
+Overview
+--------
+
+**Pikatool** is a modular, object-oriented toolkit designed to accelerate and standardize the data science workflow. Built with a focus on reproducibility and strategic analysis, it aims to reduce repetitive setup tasks and provide a structured approach to exploratory and predictive modeling.
+
+Whether you're building a segmentation model or running a logistic regression, Pikatool allows you to invest more time in interpreting results and communicating insights—while spending less time on boilerplate code and setup overhead.
+
+Use Cases
+---------
+
+Pikatool is ideal for:
+
+* Making data science projects faster, more consistent, and reproducible
+* Shifting the analyst’s focus toward strategy and insight generation
+* Avoiding redundant work by encapsulating common tasks into reusable components
+* Creating a personal framework for approaching data science projects with an object-oriented mindset
+
+Key Features
+------------
+
+**Clustering**
+~~~~~~~~~~~~~~
+
+* Supports **Agglomerative Clustering** for segmenting data into interpretable groups
+* Includes dendrogram visualization tools to aid communication of results to non-technical stakeholders
+* Common use case: customer or respondent segmentation in survey research
+
+**Dimensionality Reduction**
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Implements **Multiple Correspondence Analysis (MCA)** to reduce dimensionality in categorical datasets
+* Especially useful in preprocessing survey data before clustering or regression analysis
+
+**Regression Analysis**
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+* Provides wrappers and helper functions for regression tasks using `scikit-learn` and `statsmodels`
+* Currently supports:
+
+  - **Logistic Regression**: Understand how various features influence the probability of a binary outcome
+    + Typical use case: identifying drivers of brand consideration or reputation across different segments
+
+Planned Extensions
+------------------
+
+Future iterations will expand modeling capabilities, enhance visualization tools, and introduce integrations with modern data workflows (e.g., pandas pipelines, MLFlow tracking).
+
+---
+
+Let me know if you'd like this in Markdown or want to add usage examples or API documentation!
+
+
+
+Table of Contents
+-----------------
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   installation
+   usage
+   api_reference
+   hierarchical_clustering
+
+
+
+Indices and Tables
+------------------
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

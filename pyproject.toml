@@ -30,7 +30,8 @@ dev = [
     "pytest",                  # Testing framework
     "mypy",                    # Type checking
     "pre-commit",              # Pre-commit hooks
-    "mypy"
+    "mypy",
+    "sphinx-autobuild"         # Hot reloading of docs
 ]
 
 [build-system]

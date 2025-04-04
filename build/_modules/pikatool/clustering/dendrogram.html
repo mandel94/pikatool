@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>pikatool.clustering.dendrogram &#8212; Pikatool 0.0.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=12dfc556" />
+    <script src="../../../_static/documentation_options.js?v=d45e8c67"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+
+
+
+
+
+  </head><body>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+
+
+          <div class="body" role="main">
+
+  <h1>Source code for pikatool.clustering.dendrogram</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">DistanceMetric</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">scipy.cluster.hierarchy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">scipy.spatial.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">squareform</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pandas.api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_string_dtype</span>
+
+
+<div class="viewcode-block" id="Dendrogram">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.Dendrogram">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">Dendrogram</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">data</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span>
+        <span class="n">distance_metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;euclidean&quot;</span><span class="p">,</span>
+        <span class="n">linkage</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;complete&quot;</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initializes the dendrogram with the given data and parameters.</span>
+
+<span class="sd">        :param data: DataFrame containing the data. Each row represents an observation, and columns represent features.</span>
+<span class="sd">        :param distance_metric: Distance metric for calculating distances (default: &quot;euclidean&quot;). Options: &#39;euclidean&#39;, &#39;cosine&#39;, &#39;jaccard&#39;, etc.</span>
+<span class="sd">        :param linkage: Linkage method for hierarchical clustering (default: &quot;complete&quot;). Options: &#39;single&#39;, &#39;complete&#39;, &#39;average&#39;, etc.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        &gt;&gt;&gt; df = pd.DataFrame([[0, 1], [1, 0], [0, 0], [1, 1]], columns=[&#39;Feature1&#39;, &#39;Feature2&#39;])</span>
+<span class="sd">        &gt;&gt;&gt; dendrogram = Dendrogram(df)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data</span> <span class="o">=</span> <span class="n">data</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">distance_metric</span> <span class="o">=</span> <span class="n">distance_metric</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkage</span> <span class="o">=</span> <span class="n">linkage</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_matrix</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkage_matrix</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">is_string_dtype</span><span class="p">(</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">labels</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_distance_matrix</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_compute_linkage_matrix</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_distance_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the distance matrix using the specified distance metric.</span>
+
+<span class="sd">        This method calculates pairwise distances between observations in the data</span>
+<span class="sd">        using the distance metric specified during the initialization.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">dist</span> <span class="o">=</span> <span class="n">DistanceMetric</span><span class="o">.</span><span class="n">get_metric</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">distance_metric</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">dist</span><span class="o">.</span><span class="n">pairwise</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dist_matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dist_matrix</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">index</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_compute_linkage_matrix</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Computes the linkage matrix for hierarchical clustering.</span>
+
+<span class="sd">        This method applies the hierarchical clustering using the linkage method</span>
+<span class="sd">        (e.g., &#39;complete&#39;, &#39;average&#39;, etc.) on the computed distance matrix.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">linkage_matrix</span> <span class="o">=</span> <span class="n">sch</span><span class="o">.</span><span class="n">linkage</span><span class="p">(</span>
+            <span class="n">squareform</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">dist_matrix</span><span class="p">),</span>
+            <span class="n">method</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">linkage</span><span class="p">,</span>  <span class="c1"># squareform ensures condensed distance matrix (statsmodels likes it)</span>
+        <span class="p">)</span>
+
+<div class="viewcode-block" id="Dendrogram.plot">
+<a class="viewcode-back" href="../../../hierarchical_clustering.html#pikatool.clustering.Dendrogram.plot">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">plot</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates and displays the dendrogram using the provided configuration.</span>
+
+<span class="sd">        :param config: The configuration settings for the dendrogram plot. It is a dictionary.</span>
+
+<span class="sd">        Example:</span>
+<span class="sd">        &gt;&gt;&gt; config = {&#39;title&#39;: &#39;Cluster Dendrogram&#39;, &#39;orientation&#39;: &#39;top&#39;}</span>
+<span class="sd">        &gt;&gt;&gt; dendrogram.plot(config)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Default configuration settings with reasonable values</span>
+        <span class="n">default_config</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Dendrogram&quot;</span><span class="p">,</span>  <span class="c1"># Default title</span>
+            <span class="s2">&quot;figsize&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="mi">18</span><span class="p">,</span>
+                <span class="mi">12</span><span class="p">,</span>
+            <span class="p">),</span>  <span class="c1"># Default size of the plot (wide aspect ratio for clarity)</span>
+            <span class="s2">&quot;font_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># Reasonable font size for readability</span>
+            <span class="s2">&quot;orientation&quot;</span><span class="p">:</span> <span class="s2">&quot;right&quot;</span><span class="p">,</span>  <span class="c1"># Default orientation for a clear left-to-right structure</span>
+            <span class="s2">&quot;color_threshold&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Reasonable threshold for color splitting</span>
+            <span class="s2">&quot;above_threshold_color&quot;</span><span class="p">:</span> <span class="s2">&quot;black&quot;</span><span class="p">,</span>  <span class="c1"># Default color for branches above the threshold</span>
+            <span class="s2">&quot;leaf_font_size&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>  <span class="c1"># Font size for leaf labels</span>
+            <span class="s2">&quot;xlim&quot;</span><span class="p">:</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>  <span class="c1"># Reasonable x-axis limit range</span>
+            <span class="s2">&quot;show_spines&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>  <span class="c1"># By default, hide plot spines (borders)</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Merge provided config with defaults, overwriting default values with user input</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span> <span class="k">else</span> <span class="n">config</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">default_config</span><span class="p">,</span> <span class="o">**</span><span class="n">config</span><span class="p">}</span>
+
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;figsize&quot;</span><span class="p">])</span>
+
+        <span class="c1"># Call dendrogram function with parameters from config</span>
+        <span class="n">sch</span><span class="o">.</span><span class="n">dendrogram</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">linkage_matrix</span><span class="p">,</span>
+            <span class="n">labels</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">labels</span><span class="p">,</span>
+            <span class="n">orientation</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;orientation&quot;</span><span class="p">],</span>
+            <span class="n">leaf_font_size</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;leaf_font_size&quot;</span><span class="p">],</span>
+            <span class="n">color_threshold</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;color_threshold&quot;</span><span class="p">],</span>
+            <span class="n">above_threshold_color</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;above_threshold_color&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Hide spines if show_spines is False</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;show_spines&quot;</span><span class="p">]:</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;top&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;left&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s2">&quot;bottom&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="c1"># Set the title and xlim from config</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">],</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlim&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlim&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;xlim&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="k">else</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">()[</span><span class="mi">1</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">Pikatool</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../hierarchical_clustering.html">Hierarchical Clustering</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Manuel De Luzi.
+
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+
+    </div>
+
+
+
+
+  </body>
+</html>
